@@ -53,7 +53,7 @@ namespace WebApiKey.Support
             using SqliteDataReader reader = await command.ExecuteReaderAsync();
             if (reader.HasRows)
             {
-                reader.Read();
+                await reader.ReadAsync();
                 count = reader.GetInt32(0);
             }
             await reader.DisposeAsync();
