@@ -5,6 +5,7 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using WebApiKey.Services;
+using WebApiKey.Support;
 
 namespace WebApiKey
 {
@@ -22,7 +23,7 @@ namespace WebApiKey
 
             services.AddDbContext<DatabaseService>(c =>
             {
-                c.UseSqlite("Data Source = ./db.db");
+                c.UseSqlite(DatabasePath.Path);
             });
             services.AddControllers();
         }

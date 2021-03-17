@@ -1,5 +1,6 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Filters;
+using Microsoft.Data.Sqlite;
 using Microsoft.Extensions.Primitives;
 using System;
 using System.Threading.Tasks;
@@ -11,11 +12,11 @@ namespace WebApiKey.Support
     {
 
         public const string Key = "api_key";
-        private const string KeyValue = "123456";
 
         public async Task OnActionExecutionAsync(ActionExecutingContext context, ActionExecutionDelegate next)
         {
-            var request = context.HttpContext.Request;
+            var request = context.HttpContext.Request;            
+
             if (!request.Query.TryGetValue(Key, out StringValues value))
             {
                 if (!request.Headers.TryGetValue(Key, out value))
@@ -28,7 +29,8 @@ namespace WebApiKey.Support
                     return;
                 }
             }
-            if (!value.Equals(KeyValue))
+
+            if (!await HashKeyVerify(value))
             {
                 context.Result = new ContentResult()
                 {
@@ -37,7 +39,27 @@ namespace WebApiKey.Support
                 };
                 return;
             }
+            
             await next();
+        }
+
+        private async Task<bool> HashKeyVerify(string value)
+        {
+            int count = 0;
+            using SqliteConnection connection = new(DatabasePath.Path);
+            using SqliteCommand command = new ("SELECT COUNT(*) as count FROM keys WHERE hash=@hash", connection);
+            command.Parameters.Add("@hash", SqliteType.Text, 100).Value = value;
+            await connection.OpenAsync();
+            using SqliteDataReader reader = await command.ExecuteReaderAsync();
+            if (reader.HasRows)
+            {
+                reader.Read();
+                count = reader.GetInt32(0);
+            }
+            await reader.DisposeAsync();
+            await command.DisposeAsync();
+            await connection.DisposeAsync();
+            return (count == 1);
         }
     }
 }

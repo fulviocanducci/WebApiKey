@@ -10,8 +10,8 @@ namespace WebApiKey.Models.Mapping
             builder.ToTable("todos");
             builder.HasKey(x => x.Id);
             builder.Property(x => x.Id).HasColumnName("id");
-            builder.Property(x => x.Description).HasMaxLength(100).IsRequired();
-            builder.Property(x => x.Active).IsRequired();
+            builder.Property(x => x.Description).HasColumnName("description").HasMaxLength(100).IsRequired();
+            builder.Property(x => x.Active).HasColumnName("active").IsRequired();
         }
     }
 }
