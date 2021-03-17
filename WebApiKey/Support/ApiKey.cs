@@ -30,7 +30,7 @@ namespace WebApiKey.Support
                 }
             }
 
-            if (!await HashKeyVerify(value))
+            if (!await HashKeyVerifyAsync(value))
             {
                 context.Result = new ContentResult()
                 {
@@ -43,7 +43,7 @@ namespace WebApiKey.Support
             await next();
         }
 
-        private async Task<bool> HashKeyVerify(string value)
+        private async Task<bool> HashKeyVerifyAsync(string value)
         {
             int count = 0;
             using SqliteConnection connection = new(DatabasePath.Path);
